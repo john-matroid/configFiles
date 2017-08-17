@@ -139,9 +139,11 @@ syntax on
 set encoding=utf-8
 
 nnoremap <leader>f 1z=
-nnoremap <leader>s :set spell
+nnoremap <leader>s :set spell!
 nnoremap <leader>l :set number
 vnoremap . :norm.<CR>
+
+:autocmd InsertEnter,InsertLeave * set cul!
 
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
