@@ -7,13 +7,15 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 " make backspace work like other apps
-set backspace=2
+set backspace=2 
 
 " Visualize code indentations
 Plugin 'nathanaelkane/vim-indent-guides'
 let g:indent_guides_auto_colors = 0
 autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  ctermbg=black
-autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=darkgrey
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=gray
+
+autocmd FileType python setlocal sw=2 sts=2 expandtab
 
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
@@ -23,8 +25,38 @@ Plugin 'Raimondi/delimitMate'
 let delimitMate_expand_cr=1
 
 " Tab to complete text
-Plugin 'ervandew/supertab'
-let g:SuperTabDefaultCompletionType = "<c-n>"
+" Plugin 'ervandew/supertab'
+" let g:SuperTabDefaultCompletionType = "<c-n>"
+
+" Better motions" 
+Plugin 'easymotion/vim-easymotion'
+" map <leader>m <Plug>(easymotion-prefix)
+
+Plugin 'Valloric/YouCompleteMe'
+let g:ycm_autoclose_preview_window_after_completion = 1
+
+" Plugin 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
+
+" Use tab for trigger completion with characters ahead and navigate.
+" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> for trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use <cr> for confirm completion.
+" Coc only does snippet and additional edit on confirm.
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
 
 " Jump to definitions, rename, etc...
 Plugin 'ternjs/tern_for_vim'
@@ -43,9 +75,14 @@ Plugin 'othree/javascript-libraries-syntax.vim'
 " highlighting for Pug
 Plugin 'digitaltoad/vim-pug'
 
+" highlighting for Vue
+Plugin 'posva/vim-vue'
+
 " Lightline status bar
 Plugin 'itchyny/lightline.vim'
 set laststatus=2
+
+Plugin 'majutsushi/tagbar'
 
 let g:lightline = {
 \ 'colorscheme': 'wombat',
@@ -106,7 +143,7 @@ endfunction
 Plugin 'airblade/vim-gitgutter'
 
 " GitGutter update time
-set updatetime=1000
+set updatetime=500
 
 " GitGutter styling to use · instead of +/-
 let g:gitgutter_sign_added = '∙'
@@ -116,6 +153,9 @@ let g:gitgutter_sign_modified_removed = '∙'
 
 " Integrated Git commands
 Plugin 'tpope/vim-fugitive'
+
+" Brackets and quotes
+Plugin 'tpope/vim-surround'
 
 " async liniting
 Plugin 'w0rp/ale'
@@ -170,6 +210,9 @@ Plugin 'w0ng/vim-hybrid'
 " Colorscheme
 Plugin 'morhetz/gruvbox'
 
+" Colorscheme
+Plugin 'sonph/onehalf', {'rtp': 'vim/'}
+
 " Expand shorthand markup notation
 Plugin 'mattn/emmet-vim'
 
@@ -200,15 +243,13 @@ set shiftwidth=2
 set expandtab
 
 " Set up colors
-colorscheme default
-
 set background=dark
-let g:gruvbox_contrast_dark='hard'
-colorscheme gruvbox
+" let g:gruvbox_contrast_dark='hard'
+" colorscheme gruvbox
 
 if has('gui_running')
   set background=dark
-  colorscheme gruvbox
+  " colorscheme gruvbox
   set guifont=Monaco
 
   noremap <C-Tab> :tabnext<CR>
@@ -249,10 +290,20 @@ nnoremap <leader>h :split <enter>
 nnoremap <leader>q :q <enter>
 nnoremap <leader>w :w <enter>
 nnoremap <leader>e :e <enter>
-nnoremap <leader>r :NERDTreeFocus <enter>
+nnoremap <leader>nr :NERDTreeFocus <enter>
 nnoremap <silent><leader>f :NERDTreeFind <enter>
 nnoremap <leader>n :NERDTreeToggle <enter>
-nnoremap <leader><leader> <c-^>
+nnoremap <leader>p <c-^>
+nnoremap <leader>gd :Gdiff <enter>
+nnoremap <leader>gs :Gstatus <enter>
+nnoremap <leader>gb :Gblame <enter>
+nnoremap <leader>t :term /bin/bash --rcfile /home/ubuntu/.bash_profile<enter>
+nnoremap <leader>frs :term /bin/bash --rcfile /home/ubuntu/.bash_profile<enter>frs<enter>
+nnoremap <leader>rs :term /bin/bash --rcfile /home/ubuntu/.bash_profile<enter>rs<enter>
+nnoremap <leader>ct :term /bin/bash --rcfile /home/ubuntu/.bash_profile<enter>tc<enter>
+nnoremap <leader>yl :YcmCompleter GoToDeclaration<CR>
+nnoremap <leader>d :YcmCompleter GoToDefinition<CR>
+nnoremap <leader>r :YcmCompleter GoToReferences<CR>
 
 vnoremap . :norm.<CR>
 
@@ -267,6 +318,12 @@ nnoremap <C-K> <C-W><C-K>
 "ctrl p to :FZF for file search
 nnoremap <C-p> :FZF <Enter>
 
+"ctrl f to search file content
+nnoremap <C-f> :Ack<space>
+
+" ctrl g to do a global search for the work under the cursor
+nnoremap <C-g> :Ack <c-r>=expand("<cword>")<cr> <enter>
+
 " Quickly navigate between ALE errors
 nmap <silent> <C-a> <Plug>(ale_previous_wrap)
 nmap <silent> <C-w> <Plug>(ale_next_wrap)
@@ -274,3 +331,14 @@ nmap <silent> <C-w> <Plug>(ale_next_wrap)
 " Quickly navigate between next and previous buffers
 nnoremap <C-t> :bnext<CR>
 nnoremap <C-e> :bprev<CR>
+
+" Paste correct indenting
+" nnoremap p ]p
+
+colorscheme onehalfdark
+let g:lightline.colorscheme='onehalfdark'
+
+augroup AutoSaveFolds
+  autocmd Syntax * setlocal foldmethod=syntax
+  autocmd Syntax javascript,python,vim,css,html,scss normal zR
+augroup END
