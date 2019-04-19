@@ -1,0 +1,69 @@
+# clear up space on dev machine:
+docker rm `docker ps -a -q`
+docker rmi `docker images | grep none | awk '{print $3}'`
+
+# in a box - get started & stop:
+docker rm -f matroid_nginx_dev # stop nginx if need be
+docker-compose up -d 
+docker-compose stop matroid-master
+
+# enter a container
+docker-compose exec matroid-frontend bash
+
+# copy targets for new SSL certificates:
+copy fullchain.pem ~/matroid/scripts/in_a_box/ssl/nginx.crt
+copy privkey.pem ~/matroid/scripts/in_a_box/ssl/nginx.key
+
+# restart docker
+sudo service docker stop
+sudo service docker start
+
+# renew ssl certificates on dev machine
+docker kill [nginx container id]
+sudo service nginx start
+sudo certbot renew
+sudo cp /etc/letsencrypt/live/john.devaz.matroid.com/fullchain.pem ~/matroid/scripts/in_a_box/ssl/nginx.crt
+sudo cp /etc/letsencrypt/live/john.devaz.matroid.com/privkey.pem ~/matroid/scripts/in_a_box/ssl/nginx.key
+sudo service nginx stop
+~/matroid/restart.sh
+
+# copy file to docker container
+cat scripts/docker/matroid.zip | kubectl exec -i scheduler-master-3047685532-13ryn -- bash -c "cat > /tmp/matroid.zip"
+
+# Mongo
+mongorestore -h matroid-mongo --db=matroid --collection=detectoroptions --drop detectoroptions_backup/matroid/detectoroptions.bson
+
+# Update k8s config:
+aws s3 cp s3://matroid-infra/kubernetes/www1.matroid.com/kube-config ~/.kube/config
+
+# Backend challenge test video ID & Url
+url: https://www.youtube.com/watch?v=cAhmDqUbDZg
+id: 5beb13bea72aae000d84b0c5
+
+# Sharp error
+Are you importing a lib file with sharp into the frontend??
+
+Start Mongo in the background:
+sudo /usr/bin/mongod --config /etc/mongod.conf &
+
+# Update master & worker code on staging
+kcp edit deployment scheduler-master # copy docker image
+kc edit deployment scheduler-master # update docker image to match master
+
+kcp edit deployment scheduler-worker-cpu # copy docker image
+kc edit deployment scheduler-worker-cpu # update docker image to match master
+kc edit deployment scheduler-worker-gpu # update docker image to match master
+kc edit deployment scheduler-worker-serving # update docker image to match master
+
+IP address: 67.188.227.207
+
+# configure vim
+sudo ./configure --with-features=huge \
+--enable-multibyte \
+--enable-pythoninterp=yes \
+--with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu/ \ 
+--enable-python3interp=yes \
+--with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/ \
+--enable-gui=gtk2 \
+--enable-cscope \ 
+--prefix=/usr/local/
